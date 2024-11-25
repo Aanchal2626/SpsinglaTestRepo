@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+	<head>
+		<base href="../" />
+		<meta charset="utf-8" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<meta name="description"  />
+		<!-- Fav Icon  -->
+		<link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+		<!-- Page Title  -->
+		<title>Dashboard | Document Controller</title>
+		<!-- StyleSheets  -->
+		<link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+		<link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+		<style>
+			.amount {
+				font-size: 15px !important;
+			}
+			.analytic-ov-data {
+				width: 15% !important;
+			}
+		</style>
+	</head>
+
+	<body class="nk-body bg-lighter npc-general has-sidebar">
+		<div class="nk-app-root">
+			<div class="nk-main">
+				<%- include('./common/sidebar' , {active : "Dashboard"}); -%>
+				<div class="nk-wrap">
+					<%- include('./common/navbar'); -%>
+					<div class="nk-content">
+						<div class="container-fluid">
+							<div class="nk-content-inner">
+								<div class="nk-content-body">
+									<div class="nk-block-head nk-block-head-sm">
+										<div class="nk-block-between">
+											<div class="nk-block-head-content d-flex">
+												<h3 class="nk-block-title page-title">Welcome <%=token.user_name%></h3>
+												<div class="nk-block-des text-soft" style="font-size: 30px; position: relative; left: 5px; bottom: 15px">👋</div>
+											</div>
+											<div class="nk-block-head-content">
+												<div class="toggle-wrap nk-block-tools-toggle">
+													<a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+													<!-- <div class="toggle-expand-content" data-content="pageMenu">
+                            <ul class="nk-block-tools g-3">
+                              <li class="nk-block-tools-opt">
+                                <a href="#" class="btn btn-primary"><em class="icon ni ni-reports"></em><span>Reports</span></a>
+                              </li>
+                            </ul>
+                          </div> -->
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="nk-block">
+										<div class="row g-gs">
+											<div class="col-lg-12">
+												<div class="card card-bordered h-100">
+													<div class="card-inner">
+														<div class="card-title-group pb-3 g-2">
+															<div class="card-title card-title-sm">
+																<h6 class="title">Documents Overview</h6>
+															</div>
+															<div class="card-tools shrink-0 d-none d-sm-block">
+																<select name="statsSiteFilter" id="statsSiteFilter" class="form-select form-control js-select2 form-control" data-search="on">
+																	<% sites.forEach(function(site){ %>
+																	<option value="<%= site.site_id %>"><%= site.site_name %></option>
+																	<% }); %>
+																</select>
+															</div>
+														</div>
+														<div class="analytic-ov" id="folderStats">
+															<div class="analytic-data-group analytic-ov-group g-3">
+																<div class="analytic-data analytic-ov-data">
+																	<div class="title">Folder Name</div>
+																	<div class="amount">-</div>
+																</div>
+																<div class="analytic-data analytic-ov-data">
+																	<div class="title">Total Documents</div>
+																	<div class="amount">-</div>
+																</div>
+																<div class="analytic-data analytic-ov-data">
+																	<div class="title">Drafted Documents</div>
+																	<div class="amount">-</div>
+																</div>
+																<div class="analytic-data analytic-ov-data">
+																	<div class="title">Inserted Documents</div>
+																	<div class="amount">-</div>
+																</div>
+																<div class="analytic-data analytic-ov-data">
+																	<div class="title">Uploaded Documents</div>
+																	<div class="amount">-</div>
+																</div>
+																<div class="analytic-data analytic-ov-data">
+																	<div class="title">Pages Uploaded</div>
+																	<div class="amount">-</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<!-- .card -->
+											</div>
+										</div>
+										<!-- .row -->
+									</div>
+									<!-- .nk-block -->
+								</div>
+							</div>
+						</div>
+					</div>
+					<%- include('./common/footer'); -%>
+				</div>
+			</div>
+		</div>
+		<script src="/app/assets/js/bundle.js"></script>
+		<script src="/app/assets/js/scripts.js"></script>
+		<script src="/app/assets/js/charts/gd-default.js"></script>
+		<script>
+			$("#statsSiteFilter").change(function () {
+				fetchDashboardStats();
+			});
+			function fetchDashboardStats() {
+				let site = $("#statsSiteFilter").val();
+				$.ajax({
+					url: "/dashboard/site-stats",
+					type: "POST",
+					contentType: "application/json",
+					data: JSON.stringify({ site_id: site }),
+					success: function (response) {
+						if (response.status == 1) {
+							let htmlString = ``;
+
+							response.documentStatsPerFolder.forEach(function (folder) {
+								folder.siteName = folder.siteName.split(" - ").pop();
+								htmlString += ` <div class="analytic-data-group analytic-ov-group g-3">
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Folder Name</div>
+                                  <div class="amount">${folder.siteName || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Total Documents</div>
+                                  <div class="amount">${folder.stats.totalDocuments || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Drafted Documents</div>
+                                  <div class="amount">${folder.stats.draftedDocuments || "-"}</div>
+                                </div>
+								<div class="analytic-data analytic-ov-data">
+                                  <div class="title">Inserted Documents</div>
+                                  <div class="amount">${folder.stats.insertedDocuments || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Uploaded Documents</div>
+                                  <div class="amount">${folder.stats.uploadedDocuments || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Pages Uploaded</div>
+                                  <div class="amount">${folder.stats.pagesUploaded || "-"}</div>
+                                </div>
+                              </div>`;
+							});
+							$("#folderStats").html(htmlString);
+						} else {
+							$("#folderStats").html("<p>Data aggregation in process.</p>");
+						}
+					},
+					error: function (xhr, status, error) {
+						$("#folderStats").html("<p>Error loading data</p>");
+						console.error(error);
+					},
+				});
+			}
+			fetchDashboardStats();
+		</script>
+	</body>
+</html>

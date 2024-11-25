@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+	<head>
+		<base href="../" />
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<meta name="description"  />
+		<link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+		<title>Import | Document Controller</title>
+		<link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+		<link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+		<style>
+			.nk-tb-item .nk-tb-col:first-child {
+				padding-left: 10px;
+			}
+			.nk-tb-col:first-child {
+				width: 30px;
+				min-width: 30px;
+				max-width: 30px;
+			}
+			.nk-tb-col:nth-child(2) {
+				width: 350px;
+				min-width: 350px;
+				max-width: 350px;
+			}
+			.nk-tb-col:nth-child(4) {
+				width: 300px;
+				min-width: 300px;
+				max-width: 300px;
+			}
+			.nk-tb-col:nth-child(5) {
+				width: 350px;
+				min-width: 350px;
+				max-width: 350px;
+			}
+			.nk-tb-col {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				padding: 5px 15px;
+				width: 170px;
+				min-width: 170px;
+				max-width: 170px;
+			}
+		</style>
+	</head>
+
+	<body class="nk-body bg-lighter npc-general has-sidebar">
+		<div class="nk-app-root">
+			<div class="nk-main">
+				<%- include('./common/sidebar' , {active : "Documents"}); -%>
+				<div class="nk-wrap">
+					<%- include('./common/navbar'); -%>
+					<div class="nk-content">
+						<div class="container-fluid">
+							<div class="nk-content-inner">
+								<div class="nk-content-body">
+									<div class="nk-block-head nk-block-head-sm">
+										<div class="nk-block-between">
+											<div class="nk-block-head-content">
+												<h3 class="nk-block-title page-title">Import Documents</h3>
+											</div>
+											<div class="nk-block-head-content">
+												<div class="toggle-wrap nk-block-tools-toggle">
+													<a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="nk-block nk-block-lg">
+										<div class="card" id="card-1">
+											<div class="card-inner">
+												<div class="card-head">
+													<h5 class="card-title">Upload Form</h5>
+												</div>
+												<form id="bulkForm" class="form-validate is-alter">
+													<div class="row g-4">
+														<div class="col-lg-4">
+															<div class="form-group">
+																<label class="form-label" for="doc_site">Site</label>
+																<div class="form-control-wrap">
+																	<select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" data-search="on" required>
+																		<option label="empty" value=""></option>
+																		<% sites.forEach(function(site) { %>
+																		<option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>"><%= site.site_name %></option>
+																		<% }); %>
+																	</select>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-4">
+															<div class="form-group">
+																<label class="form-label" for="doc_folder">Folder</label>
+																<div class="form-control-wrap">
+																	<select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" data-search="on" required>
+																		<option label="empty" value=""></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-4">
+															<div class="form-group">
+																<label class="form-label" for="doc_file">Upload Zip File</label>
+																<div class="form-control-wrap">
+																	<input type="file" accept=".zip" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
+																</div>
+															</div>
+														</div>
+														<div class="col-md-12">
+															<div class="form-group">
+																<button id="uploadZipButton" type="submit" class="btn btn-primary">Upload File</button>
+
+																<span id="progress-percentage" class="d-none" style="font-weight: bold; margin-left: 10px">0%</span>
+															</div>
+														</div>
+													</div>
+												</form>
+											</div>
+										</div>
+										<div class="card d-none" id="card-2">
+											<div class="card-inner">
+												<div class="card-head">
+													<div class="row">
+														<div class="col-12"><h5 class="card-title text-success">File Uploaded successfully</h5></div>
+														<div onclick="window.location.reload()" class="col-12 mt-4"><button class="btn btn-primary">Refresh</button></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<%- include('./common/footer'); -%>
+				</div>
+			</div>
+		</div>
+		<script src="/app/assets/js/bundle.js"></script>
+		<script src="/app/assets/js/scripts.js"></script>
+		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1103.0.min.js"></script>
+
+		<script>
+			let folders = `<%- JSON.stringify(folders) %>`;
+			folders = folders ? JSON.parse(folders) : [];
+			let config = `<%- JSON.stringify(config) %>`;
+			config = JSON.parse(config);
+			let fileName = `${Date.now()}.zip`;
+			let token = `<%- JSON.stringify(token) %>`;
+			token = token ? JSON.parse(token) : [];
+
+			AWS.config.update({
+				accessKeyId: config.keyId,
+				secretAccessKey: config.accessKey,
+				region: config.region,
+			});
+			const s3 = new AWS.S3();
+			const bucketName = config.bucketName;
+
+			const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
+
+
+			$("#doc_site").on("change", function () {
+				var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
+				var folderSelect = $("#doc_folder");
+				folderSelect.val("");
+				folderSelect.empty().append('<option label="empty" value=""></option>');
+				folders.forEach(function (folder) {
+					if (folder.site_parent_id == selectedSiteParentId) {
+						folderSelect.append('<option data-site-id="' + folder.site_id + '" value="' + folder.site_name + '">' + folder.site_name + "</option>");
+					}
+				});
+			});
+			$("#bulkForm").submit(function (event) {
+				event.preventDefault();
+
+				if (!this.checkValidity()) {
+					return false;
+				}
+
+				const file = document.getElementById("doc_file").files[0];
+				const selectedFolderOption = $("#doc_folder").find("option:selected");
+				const siteId = selectedFolderOption.data("site-id");
+
+				const key = `uploads/${siteId}_${token.user_id}_${fileName}`;
+				NioApp.handleButtonState("uploadZipButton", "Uploading...", true);
+
+				const params = {
+					Bucket: bucketName,
+					Key: key,
+					Body: file,
+					CORSConfiguration: {
+						CORSRules: [
+							{
+								AllowedHeaders: ["*"],
+								AllowedMethods: ["GET", "POST", "PUT", "DELETE", "HEAD"],
+								AllowedOrigins: ["*"],
+								ExposeHeaders: ["ETag"],
+								MaxAgeSeconds: 3000,
+							},
+						],
+					},
+				};
+
+				s3.upload(params, function (err, data) {
+					if (err) {
+						console.error("Error uploading file:", err);
+						NioApp.handleButtonState("uploadZipButton", "Upload File", false);
+						NioApp.Toast("<h5>Upload Failed</h5><p>Error Uploading File</p>", "error");
+					} else {
+						$("#progress-percentage").addClass("d-none");
+						NioApp.Toast("<h5>Upload Success</h5><p>File Uploaded Successfully</p>", "success");
+						$("#card-2").removeClass("d-none");
+						$("#card-1").addClass("d-none");
+					}
+				}).on("httpUploadProgress", function (progress) {
+					const percent = Math.round((progress.loaded / progress.total) * 100);
+					$("#progress-percentage").removeClass("d-none").html(`${percent}%`);
+				});
+			});
+		</script>
+	</body>
+</html>

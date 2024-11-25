@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description"
+     />
+  <!-- Fav Icon  -->
+  <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+  <!-- Page Title  -->
+  <title>Documents | Document Controller</title>
+  <!-- StyleSheets  -->
+  <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+  <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+  <style>
+    .is-compact .nk-tb-item:not(.nk-tb-head) .nk-tb-col {
+      padding-top: 2px;
+      padding-bottom: 2px;
+    }
+
+    .nk-tb-item .nk-tb-col:first-child {
+      padding-left: 10px;
+    }
+
+    .nk-tb-col {
+      white-space: nowrap;
+      /* overflow: hidden;
+         text-overflow: ellipsis; */
+      padding: 5px 15px;
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+    }
+
+    #table-head.nk-tb-head {
+      cursor: pointer;
+    }
+
+    .sort-indicator {
+      margin-left: 5px;
+    }
+
+    .nk-tb-col.active span {
+      font-weight: bold;
+    }
+    
+    .select2-container--default .select2-selection--multiple {
+      width: 150px; 
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+      padding: 0 5px;
+    }
+
+    .select2-container--default .select2-dropdown {
+      width: 150px; 
+    }
+
+    .select2-container--default .select2-dropdown {
+      left: 0; 
+      width: calc(100% + 2px);
+    }
+    .page-link{
+      cursor: pointer;
+    }
+    .nk-tb-col {
+    position: relative;
+}
+
+.nk-tb-col .sort-indicator:after {
+    content: "";
+    position: absolute;
+    right: 10px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px; /* Adjust as needed */
+}
+
+.nk-tb-col.sort-asc .sort-indicator:after {
+    content: "▲"; /* Upward arrow */
+}
+
+.nk-tb-col.sort-dsc .sort-indicator:after {
+    content: "▼"; /* Downward arrow */
+}
+
+.nk-tb-col.active {
+    /* Optional: styling for the active column */
+}
+
+  </style>
+</head>
+
+<body class="nk-body bg-lighter npc-general has-sidebar">
+  <div class="nk-app-root">
+    <!-- main @s -->
+    <div class="nk-main">
+      <%- include('./common/sidebar' , {active : "Documents" }); -%>
+        <div class="nk-wrap">
+          <%- include('./common/navbar'); -%>
+            <div class="nk-content">
+              <div class="container-fluid">
+                <div class="nk-content-inner">
+                  <div class="nk-content-body">
+                    <div class="nk-block">
+                      <div class="nk-block-head nk-block-head-sm">
+                        <div class="nk-block-between g-3">
+                          <div class="nk-block-head-content">
+                            <h3 class="nk-block-title page-title">Documents</h3>
+                          </div>
+                          <%if(token.user_role !=3){%>
+                            <div class="nk-block-head-content">
+                              <%if(token.user_role == 0 || token.user_role==1){%>
+                                <a 
+                                    class="btn btn-white btn-dim btn-outline-light"><span>AI Import</span></a>
+                                <span class="drodown">
+                                  <a href="#" class="dropdown-toggle btn btn-white btn-dim btn-outline-light"
+                                    data-bs-toggle="dropdown"><em class="icon ni ni-inbox-in"></em><span><span
+                                        class="d-none d-md-inline">Import</a>
+                                  <div style="min-width: 140px;" class="dropdown-menu dropdown-menu-end">
+                                    <ul class="link-list-opt no-bdr">
+                                      <li>
+                                        <a class="btn-sm" href="/documents/import/bulk"><em
+                                            class="icon ni ni-folder-fill"></em><span>Bulk
+                                            Import</span></a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </span>
+                                <%}%>
+                                  <a href="/documents/create-document"
+                                    class="btn btn-white btn-dim btn-outline-light"><em
+                                      class="icon ni ni-plus-sm"></em><span>Add Document</span></a>
+                            </div>
+                            <%}%>
+                        </div>
+                      </div>
+                      <div class="card card-bordered card-stretch">
+                        <div class="card-inner-group">
+                          <div class="card-inner position-relative card-tools-toggle">
+                            <div class="card-title-group">
+                              <div class="card-tools"></div>
+                              <div class="card-tools me-n1">
+                                <ul class="btn-toolbar gx-1">
+                                  <li>
+                                    <a href="#" class="btn btn-icon search-toggle toggle-search"
+                                      data-target="search"><em class="icon ni ni-search"></em></a>
+                                  </li>
+                                  <li class="btn-toolbar-sep"></li>
+                                  <li>
+                                    <div class="toggle-wrap">
+                                      <a href="#" class="btn btn-icon btn-trigger toggle" data-target="cardTools"><em
+                                          class="icon ni ni-menu-right"></em></a>
+                                      <div class="toggle-content" data-content="cardTools">
+                                        <ul class="btn-toolbar gx-1">
+                                          <li class="toggle-close">
+                                            <a href="#" class="btn btn-icon btn-trigger toggle"
+                                              data-target="cardTools"><em class="icon ni ni-arrow-left"></em></a>
+                                          </li>
+                                          <li>
+                                            <div class="dropdown">
+                                              <a href="#" class="btn btn-trigger btn-icon dropdown-toggle"
+                                                data-bs-toggle="dropdown">
+                                                <em class="icon ni ni-setting"></em>
+                                              </a>
+                                              <div class="dropdown-menu dropdown-menu-xs dropdown-menu-end">
+                                                <ul class="filter-limit link-check">
+                                                  <li><span>Show</span></li>
+                                                  <li class="active"><a href="#" data-limit="10">10</a></li>
+                                                  <li><a href="#" data-limit="20">20</a></li>
+                                                  <li><a href="#" data-limit="50">50</a></li>
+                                                  <li><a href="#" data-limit="100">100</a></li>
+                                                </ul>
+                                              </div>
+                                              
+                                            </div>
+                                          </li>
+                                        </ul>
+                                      </div>
+
+                                    </div>
+                                  </li>
+                                  <li>
+                                    <a id="resetFilters" class="btn btn-dim btn-outline-primary">
+                                      <em class="icon ni ni-reload-alt"></em>
+                                      <span>Reset Filter</span>
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <div class="scroll-buttons">
+                                      <a id="scroll-left" class="btn btn-icon btn-primary"><em
+                                          class="icon ni ni-chevron-left"></em></a>
+                                      <a id="scroll-right" class="btn btn-icon btn-primary"><em
+                                          class="icon ni ni-chevron-right"></em></a>
+                                    </div>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                            <div class="card-search search-wrap" data-search="search">
+                              <div class="card-body">
+                                <div class="search-content">
+                                  <a href="#" class="search-back btn btn-icon toggle-search" data-target="search"><em
+                                      class="icon ni ni-arrow-left"></em></a>
+                                  <input type="text" id="doc_ocr_content"
+                                    class="form-control border-transparent form-focus-none filter-input" data-filter="keyword"
+                                    placeholder="Search Keywords" />
+                                  <button id="searchDocumentButton" class="search-submit btn btn-icon"><em
+                                      class="icon ni ni-search"></em></button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="card-inner p-0 scrollable-datatable">
+                            <div class="nk-tb-list nk-tb-ulist is-compact">
+                              <div class="nk-tb-item nk-tb-head" id="table-head">
+                                <div class="nk-tb-col text-start">
+                                    <span data-field="doc_site">SITE</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_folder">FOLDER</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_type">TYPE</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_number">NUMBER</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_status">STATUS</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_created_at">DATE</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_purpose">PURPOSE</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_subject">SUBJECT</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_from">FROM</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_to">TO</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_storage">STORAGE</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_reference">REFERENCE</span><span class="sort-indicator"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span data-field="doc_replied_vide">REPLIED VIDE</span><span class="sort-indicator"></span>
+                                </div>
+                            </div>
+                            
+                              <div class="nk-tb-item nk-tb-head" id="table-filters">
+                                <div class="nk-tb-col text-start">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="multiple" id="doc_site" name="doc_site"
+                                      data-placeholder="Site" multiple>
+                                      <option label="empty" value=""></option>
+                                      <% sites.forEach(site=> { %>
+                                        <option value="<%= site.site_name %>">
+                                          <%= site.site_name %>
+                                        </option>
+                                        <% }); %>
+                                    </select>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="multiple" id="doc_folder"
+                                      name="doc_folder" data-placeholder="Folder" multiple>
+                                      <option value="">Select Folder</option>
+                                      <% folders.forEach(folder=> { %>
+                                        <option value="<%= folder.site_name %>">
+                                          <%= folder.site_name %>
+                                        </option>
+                                        <% }); %>
+                                    </select>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="text" id="doc_type" name="doc_type"
+                                      data-placeholder="Select Type">
+                                      <option label="empty" value=""></option>
+                                      <option label="INCOMING" value="INCOMING">INCOMING</option>
+                                      <option label="OUTGOING" value="OUTGOING">OUTGOING</option>
+                                    </select>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_number" placeholder="Number">
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="text" id="doc_status" name="doc_status"
+                                      data-placeholder="Select Status">
+                                      <option label="empty" value=""></option>
+                                      <option label="INSERTED" value="INSERTED">INSERTED</option>
+                                      <option label="DRAFTED" value="DRAFTED">DRAFTED</option>
+                                      <option label="UPLOADED" value="UPLOADED">UPLOADED</option>
+                                    </select>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <div class="form-group">
+                                      <div class="form-control-wrap">
+                                          <input placeholder="Date" id="doc_date" type="text" class="form-control date-picker filter-input" data-filter="date">
+                                      </div>
+                                  </div>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="text" id="doc_purpose" name="doc_purpose"
+                                      data-placeholder="Select Purpose">
+                                      <option label="empty" value=""></option>
+                                      <option label="DESIGN & DRAWINGS" value="DESIGN & DRAWINGS">DESIGN & DRAWINGS</option>
+                                      <option label="EOT" value="EOT">EOT</option>
+                                      <option label="OTHERS" value="OTHERS">OTHERS</option>
+                                    </select>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_subject" placeholder="Subject">
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_from" placeholder="Subject">
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_to" placeholder="Subject">
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_storage" placeholder="Storage">
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="multiple" id="doc_reference"
+                                      name="doc_reference" data-placeholder="Select Reference" multiple>
+                                      <option label="empty" value=""></option>
+
+                                    </select>
+                                  </span>
+                                </div>
+                                <div class="nk-tb-col">
+                                  <span>
+                                    <select class="form-select form-control js-select2 filter-input" data-filter="text" id="doc_replied_vide"
+                                      name="doc_replied_vide" data-placeholder="Select Replied Vide" multiple>
+                                      <option label="empty" value=""></option>
+                                    </select>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div id="table-status" class="card-inner text-center">
+                            <div class="text-center">
+                              <p>No Data Found</p>
+                            </div>
+                          </div>
+
+                          <div id="table-pagination" class="card-inner">
+                            <ul class="pagination">
+                              <li class="paginate_button page-item previous disabled" id="DataTables_Table_2_previous">
+                                <a aria-controls="DataTables_Table_2" aria-disabled="true" role="link"
+                                  data-dt-idx="previous" tabindex="0" class="page-link">Prev</a>
+                              </li>
+                              <!-- Pagination numbers will be dynamically inserted here -->
+                              <li class="paginate_button page-item next" id="DataTables_Table_2_next">
+                                <a aria-controls="DataTables_Table_2" role="link" data-dt-idx="next" tabindex="0"
+                                  class="page-link">Next</a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <%- include('./common/footer'); -%>
+        </div>
+    </div>
+  </div>
+
+  <script src="/app/assets/js/bundle.js"></script>
+  <script src="/app/assets/js/scripts.js"></script>
+  <script>
+          let filters = {
+          limit: 10,
+          page: 1,
+          sort: {},
+          activeFilter: {},
+      };
+
+      $('.filter-limit a').click(function(event) {
+        event.preventDefault();
+        var selectedLimit = $(this).data('limit');
+        filters.limit = selectedLimit;
+        $('.filter-limit li').removeClass('active');
+        $(this).parent().addClass('active');
+        fetchDocuments();
+      });
+      $(".filter-input").change((e) => {
+          let value = e.target.value.trim();
+          let id = e.target.id;
+          let dataFilter = e.target.dataset.filter;
+
+          if (e.target.multiple) {
+              value = Array.from(e.target.selectedOptions).map(option => option.value);
+          }
+
+          if (filters.activeFilter.hasOwnProperty(id)) {
+              delete filters.activeFilter[id];
+          }
+
+          if (value.length > 0) {
+              filters.activeFilter[id] = {
+                  type: dataFilter,
+                  value: value
+              };
+          }
+          fetchDocuments();
+      });
+
+
+
+
+
+    $('.js-select2').select2({
+        placeholder: 'Select an option',
+        width: 'resolve'
+    });
+    
+    function fetchDocuments() {
+      $(".table-content").remove();
+      $("#table-status").html(`<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`);
+
+      $.ajax({
+        type: "POST",
+        url: "/docs/get-filtered-documents",
+        data: JSON.stringify(filters),
+        contentType: "application/json",
+        success: function (response) {
+          if (response.status == 1) {
+            if (response.payload.documents && response.payload.documents.length > 0) {
+              $("#table-status").empty();
+              response.payload.documents.forEach(function (document) {
+                let rowHtml = `<div class="nk-tb-item text-left table-content">
+                                  <div class="nk-tb-col text-start">
+                                      <span>${document.doc_site || "-"}</span>
+                                  </div>
+                                 <div class="nk-tb-col text-start">
+                                    <span>${document.doc_folder || "-"}</span>
+                                </div>
+                                  <div class="nk-tb-col">
+                                      <span>
+                                          <div style="font-size: 10px; height: 20px; width: 20px; margin-right: 5px" class="nk-tnx-type-icon ${document.doc_type == "INCOMING" ? `text-primary bg-primary-dim` : `text-success bg-success-dim`} "><em class="icon ni ${document.doc_type == "INCOMING" ? `text-success bg-success-dim ni-arrow-down-left` : `text-primary bg-primary-dim ni-arrow-up-right`}"></em></div> 
+                                          ${document.doc_type || "-"}
+                                      </span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span><a href="/documents/${btoa(document.doc_number)}">${document.doc_number || "-"}</a></span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span${document.doc_status === "DRAFTED" ? ' class="text-warning"' : document.doc_status === "UPLOADED" ? ' class="text-primary"' : ""}>${document.doc_status || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>${document.doc_created_at || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_purpose || "-"}">${document.doc_purpose || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_subject || "-"}">${document.doc_subject || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_from || "-"}">${document.doc_from || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_to || "-"}">${document.doc_to || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      ${document.doc_reference ?
+                    document.doc_reference.split(',').map((ref, index) => {
+                      const trimmedRef = ref.trim();
+                      return `<span style='margin-right : 4px' class="badge bg-outline-primary"><a target="_blank" href="/documents/${btoa(trimmedRef)}">${trimmedRef}</a></span>`;
+                    }).join('')
+                    : "-"}
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      ${document.doc_replied_vide ?
+                    document.doc_replied_vide.split(',').map((reply, index) => {
+                      const trimmedReply = reply.trim();
+                      return `<span style='margin-right : 4px' class="badge bg-outline-primary"><a target="_blank" href="/documents/${btoa(trimmedReply)}">${trimmedReply}</a></span>`;
+                    }).join('')
+                    : "-"}
+                                  </div>
+                              </div>`;
+                $(rowHtml).insertAfter("#table-filters");
+              });
+              totalPages = response.payload.totalPages || 1;
+              updatePagination(totalPages, filters.page);
+            } else {
+              $("#table-status").html(`<div class="text-center"><p>No Records Found</p></div>`);
+            }
+          } else {
+            $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
+            $(".scrollable-datatable").css({ 'overflow': 'none !important' });
+          }
+        },
+        error: function (xhr, status, error) {
+          console.log(error);
+          $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
+          $(".scrollable-datatable").css({ 'overflow': 'none !important' });
+        },
+      });
+    }
+
+    function updatePagination(totalPages, currentPage) {
+        const $pagination = $('#table-pagination .pagination');
+        $pagination.empty();
+
+        // Previous button
+        $pagination.append(`<li class="paginate_button page-item ${currentPage === 1 ? 'disabled' : 'previous'}" id="DataTables_Table_2_previous"><a aria-controls="DataTables_Table_2" role="link" data-dt-idx="previous" tabindex="0" class="page-link">Prev</a></li>`);
+
+        // Helper function to create a page item
+        const createPageItem = (page, active = false) => {
+          return `<li class="paginate_button page-item ${active ? 'active' : ''}"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="${page}" tabindex="0" class="page-link">${page}</a></li>`;
+        };
+
+        // Render first 3 pages
+        for (let i = 1; i <= 3; i++) {
+          if (i <= totalPages) {
+            $pagination.append(createPageItem(i, i === currentPage));
+          }
+        }
+
+        // Render middle dots if necessary
+        if (currentPage > 4 && totalPages > 6) {
+          $pagination.append('<li class="paginate_button page-item disabled"><a href="#" class="page-link">...</a></li>');
+        }
+
+        // Render current page in middle if it's not in the first or last 3 pages
+        if (currentPage > 3 && currentPage < totalPages - 2) {
+          $pagination.append(createPageItem(currentPage, true));
+        }
+
+        // Render middle dots if necessary
+        if (currentPage < totalPages - 3 && totalPages > 6) {
+          $pagination.append('<li class="paginate_button page-item disabled"><a href="#" class="page-link">...</a></li>');
+        }
+
+        // Render last 3 pages
+        for (let i = totalPages - 2; i <= totalPages; i++) {
+          if (i > 3) {
+            $pagination.append(createPageItem(i, i === currentPage));
+          }
+        }
+
+        // Next button
+        $pagination.append(`<li class="paginate_button page-item ${currentPage === totalPages ? 'disabled' : 'next'}" id="DataTables_Table_2_next"><a aria-controls="DataTables_Table_2" role="link" data-dt-idx="next" tabindex="0" class="page-link">Next</a></li>`);
+      }
+
+
+    function handlePaginationClick(event) {
+      event.preventDefault();
+      const $target = $(event.target).closest('li');
+      let newPage = filters.page;
+
+      if ($target.hasClass('previous') && filters.page > 1) {
+        newPage--;
+      } else if ($target.hasClass('next') && filters.page < totalPages) {
+        newPage++;
+      } else {
+        const clickedPage = parseInt($target.find('a').text());
+        if (!isNaN(clickedPage)) {
+          newPage = clickedPage;
+        }
+      }
+
+      if (newPage !== filters.page) {
+        filters.page = newPage;
+        fetchDocuments();
+      }
+    }
+
+
+      fetchDocuments();
+
+      $('#table-pagination').on('click', 'a', handlePaginationClick);
+
+      $('#scroll-left').on('click', function () {
+        $('.scrollable-datatable').animate({ scrollLeft: '-=300' }, 200);
+      });
+
+      $('#scroll-right').on('click', function () {
+        $('.scrollable-datatable').animate({ scrollLeft: '+=300' }, 200);
+      });
+
+
+
+      $("#table-head .nk-tb-col").click(function () {
+        const column = $(this);
+        const columnName = column.find('span').data('field');
+        const currentClass = column.attr('class');
+
+        let newSortClass = "";
+        if (currentClass.includes("sort-asc")) {
+            newSortClass = "sort-dsc";
+        } else if (currentClass.includes("sort-dsc")) {
+            newSortClass = "";
+        } else {
+            newSortClass = "sort-asc";
+        }
+
+        // Update filters.sort
+        if (newSortClass) {
+            filters.sort[columnName] = newSortClass === "sort-dsc" ? "DSC" : "ASC";
+        } else {
+            delete filters.sort[columnName];
+        }
+
+        // Update UI
+        $("#table-head .nk-tb-col").removeClass("sort-asc sort-dsc active");
+        for (const [key, value] of Object.entries(filters.sort)) {
+            const col = $("#table-head .nk-tb-col").filter(function() {
+                return $(this).find('span').data('field') === key;
+            });
+            if (col.length) {
+                col.addClass(value === "DSC" ? "sort-dsc" : "sort-asc").addClass("active");
+            }
+        }
+        fetchDocuments();
+    });
+
+
+  </script>
+</body>
+
+</html>

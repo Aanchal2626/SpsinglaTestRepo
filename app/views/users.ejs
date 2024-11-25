@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+	<head>
+		<base href="../" />
+		<meta charset="utf-8" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<meta name="description"  />
+		<!-- Fav Icon  -->
+		<link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+		<!-- Page Title  -->
+		<title>Users | Document Controller</title>
+		<!-- StyleSheets  -->
+		<link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+		<link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+		<style>
+			.is-alter .js-select2 ~ .invalid {
+				bottom: 40px;
+			}
+		</style>
+	</head>
+
+	<body class="nk-body bg-lighter npc-general has-sidebar">
+		<div class="nk-app-root">
+			<div class="nk-main">
+				<%- include('./common/sidebar' , {active : "User"}); -%>
+				<div class="nk-wrap">
+					<%- include('./common/navbar'); -%>
+					<div class="nk-content">
+						<div class="container-fluid">
+							<div class="nk-content-inner">
+								<div class="nk-content-body">
+									<div class="nk-block-head nk-block-head-sm">
+										<div class="nk-block-between">
+											<div class="nk-block-head-content">
+												<h3 class="nk-block-title page-title">Users Lists</h3>
+												<div class="nk-block-des text-soft">
+													<p>You have total <%=users.length%> users.</p>
+												</div>
+											</div>
+											<!-- .nk-block-head-content -->
+											<div class="nk-block-head-content">
+												<div class="toggle-wrap nk-block-tools-toggle">
+													<a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+													<div class="toggle-expand-content" data-content="pageMenu">
+														<ul class="nk-block-tools g-3">
+															<li class="nk-block-tools-opt">
+																<div class="drodown">
+																	<li class="nk-block-tools-opt">
+																		<a class="preview-item"
+																			><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add User</button></a
+																		>
+																	</li>
+																</div>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="nk-block">
+										<div class="card card-bordered card-stretch">
+											<div class="card-inner-group">
+												<!-- .card-inner -->
+												<div class="card-inner p-0">
+													<div class="nk-tb-list nk-tb-ulist is-compact">
+														<div class="nk-tb-item nk-tb-head">
+															<div class="nk-tb-col tb-col-sm"><span class="sub-text">SR NO.</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">USER ID</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">USER NAME</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">EMAIL</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">ROLE</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">STATUS</span></div>
+															<div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+														</div>
+														<% users.forEach((user, index) => { %>
+														<div class="nk-tb-item">
+															<div class="nk-tb-col tb-col-sm">
+																<span><%= index + 1 %></span>
+															</div>
+															<div class="nk-tb-col tb-col-md">
+																<span><%= user.user_role %><%= user.user_id %></span>
+															</div>
+															<div class="nk-tb-col tb-col-md">
+																<span><%= user.user_name %></span>
+															</div>
+															<div class="nk-tb-col tb-col-lg">
+																<span><%= user.user_email %></span>
+															</div>
+															<div class="nk-tb-col tb-col-md">
+																<span> <% if (user.user_role === '0') { %> Administrator <% } else if (user.user_role === '1') { %> Admin <% } else if (user.user_role === '2') { %> Editor <% } else if (user.user_role === '3') { %> Viewer <% }%> </span>
+															</div>
+															<div class="nk-tb-col"><span class="tb-status <%= user.user_status ? 'text-success' : 'text-danger' %>"><%= user.user_status ? 'Active' : 'Suspended' %></span></div>
+															<div class="nk-tb-col">
+																<ul class="nk-tb-actions gx-2">
+																	<li>
+																		<div class="drodown">
+																			<a class="btn btn-sm btn-icon btn-trigger dropdown-toggle" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+																			<div class="dropdown-menu dropdown-menu-end">
+																				<ul class="link-list-opt no-bdr">
+																					<li>
+																						<a onclick="handleEditClicked(`<%= user.user_id %>`)" style="cursor: pointer"><em class="icon ni ni-edit-fill"></em><span>Edit</span></a>
+																					</li>
+																				</ul>
+																			</div>
+																		</div>
+																	</li>
+																</ul>
+															</div>
+														</div>
+														<% }) %>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct" data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar>
+										<div class="nk-block-head">
+											<div class="nk-block-head-content">
+												<h5 class="nk-block-title">New User</h5>
+												<div class="nk-block-des">
+													<p>Add information and add new user.</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<%- include('./common/footer'); -%>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalForm">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title"><spna class="modal_title">Add</spna> User</h5>
+						<a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+							<em class="icon ni ni-cross"></em>
+						</a>
+					</div>
+					<div class="modal-body" style="padding: 1.25rem">
+						<form id="userForm" class="form-validate is-alter">
+							<div class="form-group">
+								<label class="form-label" for="user_name">User Name</label>
+								<div class="form-control-wrap">
+									<input type="text" placeholder="Enter Username" class="form-control" name="user_name" id="user_name" required />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="user_email">Email </label>
+								<div class="form-control-wrap">
+									<input type="text" placeholder="Enter Email" class="form-control" name="user_email" id="user_email" required />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="user_password">Password</label>
+								<div class="form-control-wrap">
+									<a href="#" class="form-icon form-icon-right passcode-switch" data-target="user_password">
+										<em class="passcode-icon icon-show icon ni ni-eye"></em>
+										<em class="passcode-icon icon-hide icon ni ni-eye-off"></em>
+									</a>
+									<input autocomplete="off" type="password" placeholder="Enter Password" name="user_password" class="form-control" id="user_password" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="user_role">Role</label>
+								<select class="form-control js-select2" id="user_role" name="user_role" data-placeholder="Select Site" required>
+									<option label="empty" value=""></option>
+									<option value="1">Admin</option>
+									<option value="2">Editor</option>
+									<option value="3">Viewer</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="user_status">Status</label>
+								<select class="form-control js-select2" id="user_status" name="user_status" data-placeholder="Select Status" required>
+									<option label="empty" value=""></option>
+									<option value="true">Active</option>
+									<option value="false">Suspended</option>
+								</select>
+							</div>
+							<div class="form-group" style="display: flex; justify-content: space-between">
+								<button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
+								<button id="saveUserButton" class="btn btn-primary">Save User</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<input type="hidden" id="hidden_input_user" value="<%=JSON.stringify(users)%>" />
+		</div>
+
+		<script src="/app/assets/js/bundle.js"></script>
+		<script src="/app/assets/js/scripts.js"></script>
+		<script src="/app/assets/js/charts/gd-default.js"></script>
+		<script>
+			let users = $("#hidden_input_user").val();
+			if (users) users = JSON.parse(users);
+
+			function handleEditClicked(userId) {
+				let user = users.find((u) => u.user_id === userId);
+				if (user) {
+					$("#user_name").val(user.user_name);
+					$("#user_email").val(user.user_email).prop("disabled", true);
+					$("#user_password").val(user.user_password);
+					$("#user_role").val(user.user_role).trigger("change");
+					$("#user_status").val(user.user_status.toString()).trigger("change");
+					$(".modal_title").text("Edit");
+					$("#modalForm").modal("show");
+				}
+			}
+
+			$("#modalForm").on("hidden.bs.modal", function (e) {
+				$("#user_name").val("");
+				$("#user_email").val("").prop("disabled", false);
+				$("#user_password").val("");
+				$("#user_role").val("").trigger("change");
+				$("#user_status").val("").trigger("change");
+				$(".modal_title").text("Add");
+			});
+
+			$("#userForm").submit(function (event) {
+				event.preventDefault();
+				if (!this.checkValidity()) {
+					return false;
+				}
+				NioApp.handleButtonState("saveUserButton", "Save User", true);
+
+				let user_name = $("#user_name").val();
+				let user_email = $("#user_email").val();
+				let user_password = $("#user_password").val();
+				let user_role = $("#user_role").val();
+				let user_status = $("#user_status").val();
+
+				let formData = {
+					user_name: $("#user_name").val(),
+					user_email: $("#user_email").val(),
+					user_password: $("#user_password").val(),
+					user_role: $("#user_role").val(),
+					user_status: $("#user_status").val(),
+				};
+
+				$.ajax({
+					type: "POST",
+					url: "/users/save-user",
+					data: JSON.stringify(formData),
+					contentType: "application/json",
+					success: function (response) {
+						if (response.status == 1) {
+							NioApp.handleButtonState("saveUserButton", "Save User", false);
+							NioApp.Toast("<h5>User Saved</h5><p>User Saved Successfully.</p>", "success");
+							window.location.reload();
+						} else {
+							NioApp.handleButtonState("saveUserButton", "Save User", false);
+							NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving user.</p>", "error");
+						}
+					},
+					error: function (xhr, status, error) {
+						NioApp.handleButtonState("saveUserButton", "Save User", false);
+						NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving user.</p>", "error");
+						console.error("Error saving draft:", error);
+					},
+				});
+			});
+		</script>
+	</body>
+</html>

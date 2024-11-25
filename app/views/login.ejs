@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+	<head>
+		<!-- Fav Icon  -->
+		<link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+		<!-- Page Title  -->
+		<title>Login | Document Controller</title>
+		<!-- StyleSheets  -->
+		<link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+		<link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+	</head>
+	
+	<body class="nk-body bg-white npc-general pg-auth">
+		<div class="nk-app-root">
+			<!-- main @s -->
+			<div class="nk-main">
+				<!-- wrap @s -->
+				<div class="nk-wrap nk-wrap-nosidebar">
+					<!-- content @s -->
+					<div class="nk-content">
+						<div class="nk-block nk-block-middle nk-auth-body wide-xs">
+							<div class="brand-logo pb-4 text-center">
+								<a href="/" class="logo-link">
+									<img class="logo-light logo-img logo-img-lg" src="/app/assets/images/logo.png" alt="logo" />
+									<img class="logo-dark logo-img logo-img-lg" src="/app/assets/images/logo.png" alt="logo-dark" />
+								</a>
+							</div>
+							<div class="card card-bordered">
+								<div class="card-inner card-inner-lg">
+									<div class="nk-block-head">
+										<div class="nk-block-head-content">
+											<h4 class="nk-block-title">Document Controller</h4>
+										</div>
+									</div>
+									<form id="loginForm" class="form-validate is-alter">
+										<div class="form-group">
+											<div class="form-label-group">
+												<label class="form-label" for="user_email">Email</label>
+											</div>
+											<div class="form-control-wrap">
+												<input type="email" required class="form-control form-control-lg" autocomplete="username" id="user_email" name="user_email" placeholder="Enter your email address" />
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="form-label-group">
+												<label class="form-label" for="user_password">Password</label>
+												<a class="link link-primary link-sm" href="/forgot-password">Forgot Password?</a>
+											</div>
+											<div class="form-control-wrap">
+												<a href="#" class="form-icon form-icon-right passcode-switch lg" data-target="user_password">
+													<em class="passcode-icon icon-show icon ni ni-eye"></em>
+													<em class="passcode-icon icon-hide icon ni ni-eye-off"></em>
+												</a>
+												<input type="password" required class="form-control form-control-lg" autocomplete="current-password" id="user_password" name="user_password" placeholder="Enter your password" />
+											</div>
+										</div>
+										<div class="form-group">
+											<button id="loginBtn" class="btn btn-lg btn-primary btn-block">Login</button>
+										</div>
+										<div id="alert-wrapper"></div>
+									</form>
+								</div>
+							</div>
+						</div>
+						<%- include('./common/footer'); -%>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/app/assets/js/bundle.js"></script>
+		<script src="/app/assets/js/scripts.js"></script>
+		<script>
+			$(document).ready(function () {
+				$("#loginBtn").click(function () {
+					if ($("#loginForm").valid()) {
+						NioApp.handleButtonState("loginBtn", "Login", true);
+						let user_email = $("#user_email").val();
+						let user_password = $("#user_password").val();
+						let formData = JSON.stringify({ user_email, user_password });
+						$.ajax({
+							type: "POST",
+							url: "/auth/login",
+							contentType: "application/json",
+							data: formData,
+							success: function (response) {
+								if (response.status == 1) {
+									window.location.reload();
+								} else if (response.status == 0) {
+									NioApp.handleButtonState("loginBtn", "Login", false);
+									$("#alert-wrapper").html(`<div class="alert alert-danger alert-icon alert-dismissible"><em class="icon ni ni-cross-circle"></em> <strong>${response.msg}</strong><button class="close" data-bs-dismiss="alert"></button></div>`);
+								}
+							},
+							error: function (xhr, status, error) {
+								NioApp.handleButtonState("loginBtn", "Login", false);
+								$("#alert-wrapper").html(`<div class="alert alert-danger alert-icon alert-dismissible"><em class="icon ni ni-cross-circle"></em> <strong>Contact Admin</strong><button class="close" data-bs-dismiss="alert"></button></div>`);
+							},
+						});
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

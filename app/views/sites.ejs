@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+	<head>
+		<base href="../" />
+		<meta charset="utf-8" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<meta name="description"  />
+		<!-- Fav Icon  -->
+		<link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+		<!-- Page Title  -->
+		<title>Sites | Document Controller</title>
+		<!-- StyleSheets  -->
+		<link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+		<link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+		<style>
+			.is-alter .js-select2 ~ .invalid {
+				bottom: 40px;
+			}
+			@keyframes slideAndFadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(-100%);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@keyframes slideAndFadeOut {
+				from {
+					opacity: 1;
+					transform: translateY(0);
+				}
+				to {
+					opacity: 0;
+					transform: translateY(100%);
+				}
+			}
+
+			.slide-in {
+				animation: slideAndFadeIn 0.3s ease-in-out forwards;
+			}
+
+			.slide-out {
+				animation: slideAndFadeOut 0.3s ease-in-out forwards;
+			}
+			.child-header {
+				background-color: #ededed;
+			}
+			.child-content {
+				background-color: #ededed;
+			}
+			.nk-tb-col {
+				width: 20%;
+			}
+			.nk-tb-col:nth-child(2) {
+				width: 400px;
+				min-width: 400px;
+				max-width: 400px;
+			}
+		</style>
+	</head>
+
+	<body class="nk-body bg-lighter npc-general has-sidebar">
+		<div class="nk-app-root">
+			<div class="nk-main">
+				<%- include('./common/sidebar' , {active : "Sites"}); -%>
+				<div class="nk-wrap">
+					<%- include('./common/navbar'); -%>
+					<div class="nk-content">
+						<div class="container-fluid">
+							<div class="nk-content-inner">
+								<div class="nk-content-body">
+									<div class="nk-block-head nk-block-head-sm">
+										<div class="nk-block-between">
+											<div class="nk-block-head-content">
+												<h3 class="nk-block-title page-title">Sites Lists</h3>
+												<% let filteredSites = sites.filter(site => site.site_parent_id === '0'); %>
+												<div class="nk-block-des text-soft">
+													<p>You have a total of <%= filteredSites.length %> site.</p>
+												</div>
+											</div>
+											<!-- .nk-block-head-content -->
+											<div class="nk-block-head-content">
+												<div class="toggle-wrap nk-block-tools-toggle">
+													<a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+													<div class="toggle-expand-content" data-content="pageMenu">
+														<ul class="nk-block-tools g-3">
+															<li class="nk-block-tools-opt">
+																<div class="drodown">
+																	<li class="nk-block-tools-opt">
+																		<a class="preview-item"
+																			><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add Site</button></a
+																		>
+																		<a class="preview-item"
+																			><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm2"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add Folder</button></a
+																		>
+																	</li>
+																</div>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="nk-block">
+										<div class="card card-bordered card-stretch">
+											<div class="card-inner-group">
+												<div class="card-inner p-0">
+													<div class="nk-tb-list nk-tb-ulist is-compact text-left">
+														<div class="nk-tb-item nk-tb-head">
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">SITE CODE</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">SITE NAME</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">SITE MASTER ID</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">SITE FOLDERS</span></div>
+															<div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+														</div>
+														<% sites.forEach(function(site) { %> <% var childSitesCount = sites.filter(childSite => childSite.site_parent_id === site.site_id).length; %>
+														<div class="nk-tb-item parent-row <%= site.site_parent_id !== '0' ? 'd-none' : '' %>" data-parent="<%= site.site_id %>" style="cursor: pointer">
+															<div class="nk-tb-col tb-col-sm parent-content">
+																<span><%= site.site_code %></span>
+															</div>
+															<div class="nk-tb-col tb-col-sm parent-content">
+																<span><%= site.site_name %></span>
+															</div>
+															<div class="nk-tb-col tb-col-sm parent-content">
+																<span><%= site.site_id %></span>
+															</div>
+															<div class="nk-tb-col tb-col-sm parent-content">
+																<span><%= childSitesCount %></span>
+															</div>
+															<div class="nk-tb-col text-end">
+																<a onclick="handleEditClicked(`<%= site.site_id %>`)" style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
+																<a style="margin-right: 20px !important; font-size: 18px; cursor: pointer; display: none" class="link-cross me-sm-n1 action-dropdown down-arrow-<%= site.site_id %>"><em class="icon ni ni-chevron-down"></em> </a>
+															</div>
+														</div>
+														<% var headerRendered = false; %> <% sites.forEach(function(childSite) { if (childSite.site_parent_id === site.site_id) { %> <% if (!headerRendered) { %>
+														<div class="nk-tb-item child-row nk-tb-head d-none child-header" data-parent="<%= site.site_id %>" style="background: #ededed">
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER CODE</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER NAME</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER PARENT CODE</span></div>
+															<div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER RECORD VALUE</span></div>
+															<div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+														</div>
+														<% headerRendered = true; %> <% } %>
+														<div class="nk-tb-item child-row d-none" data-parent="<%= site.site_id %>">
+															<div class="nk-tb-col tb-col-sm child-content">
+																<span><%= childSite.site_code%></span>
+															</div>
+															<div class="nk-tb-col tb-col-sm child-content">
+																<span><%= childSite.site_name%></span>
+															</div>
+															<div class="nk-tb-col tb-col-sm child-content">
+																<span><%= site.site_code%></span>
+															</div>
+															<div class="nk-tb-col tb-col-sm child-content">
+																<span><%= childSite.site_record_value%></span>
+															</div>
+															<div class="nk-tb-col text-end child-content">
+																<a onclick="handleChildEditClicked(`<%= JSON.stringify(childSite) %> `, `<%= JSON.stringify(users) %>`, `<%= JSON.stringify(permissions) %>`)" style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
+																<a style="margin-right: 20px !important; font-size: 18px; cursor: pointer; display: none" class="link-cross me-sm-n1 action-dropdown down-arrow-<%= site.site_id %>"><em class="icon ni ni-chevron-down"></em> </a>
+															</div>
+														</div>
+														<% } }); %> <% }); %>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<%- include('./common/footer'); -%>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalForm">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title"><span class="modal_title">Add</span> Site</h5>
+						<a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+							<em class="icon ni ni-cross"></em>
+						</a>
+					</div>
+					<div class="modal-body" style="padding: 1.25rem">
+						<form id="siteForm" class="form-validate is-alter">
+							<div class="form-group">
+								<label class="form-label" for="site_code">Site Code</label>
+								<div class="form-control-wrap">
+									<input type="number" placeholder="Enter Site Code" class="form-control" name="site_code" id="site_code" required />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="site_name">Site Name </label>
+								<div class="form-control-wrap">
+									<input type="text" placeholder="Enter Site Name" class="form-control" name="site_name" id="site_name" required />
+								</div>
+							</div>
+							<div class="form-group" style="display: flex; justify-content: space-between">
+								<button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
+								<button id="saveSiteButton" class="btn btn-primary">Save Site</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<input type="hidden" id="hidden_input_user" value="<%=JSON.stringify(sites)%>" />
+		</div>
+
+		<div class="modal fade" id="modalForm2">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title"><spna class="modal_title">Add</spna> Folder <span id="folder_parent"></span></h5>
+						<a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+							<em class="icon ni ni-cross"></em>
+						</a>
+					</div>
+					<div class="modal-body" style="padding: 1.25rem">
+						<form id="folderForm" class="form-validate is-alter">
+							<div class="form-group">
+								<label class="form-label" for="folder_site">Folder Site</label>
+								<div class="form-control-wrap">
+									<select class="form-select form-control js-select2" id="folder_site" name="folder_site" data-placeholder="Select Site" required>
+										<option label="empty" value=""></option>
+										<% filteredSites.forEach(function(site) { %>
+										<option value="<%= site.site_id %>"><%= site.site_name %></option>
+										<% }); %>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="folder_name">Folder Name</label>
+								<div class="form-control-wrap">
+									<input type="text" placeholder="Enter Folder Name" class="form-control" name="folder_name" id="folder_name" required />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="folder_prefix">Folder Prefix</label>
+								<div class="form-control-wrap">
+									<select class="form-control js-select2" data-placeholder="Select Prefix" name="folder_prefix" id="folder_prefix" multiple required></select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="folder_code">Folder Code</label>
+								<div class="form-control-wrap">
+									<input type="number" placeholder="Enter Folder Code" class="form-control" name="folder_code" id="folder_code" required />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="folder_record_value">Folder Record Value</label>
+								<div class="form-control-wrap">
+									<input type="number" placeholder="Enter Folder Record Value" class="form-control" name="folder_record_value" id="folder_record_value" required />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="form-label" for="user_permissions">Permissions</label>
+								<select class="form-control js-select2" data-placeholder="Select Permissions" id="user_permissions" name="user_permissions" multiple>
+									<option label="empty" value=""></option>
+									<% users.forEach(function(user) { %>
+									<option value="<%= user.user_id %>"><%= user.user_name %></option>
+									<% }); %>
+								</select>
+							</div>
+							<div class="form-group" style="display: flex; justify-content: space-between">
+								<button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
+								<button id="saveFolderButton" class="btn btn-primary">Update Folder</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="/app/assets/js/bundle.js"></script>
+		<script src="/app/assets/js/scripts.js"></script>
+		<script>
+			$(document).ready(function () {
+				$("#folder_name,#site_name").on("input", function () {
+					$(this).val(function (_, val) {
+						return val.replace(/-/g, "");
+					});
+				});
+				$("#folder_prefix").select2({
+					placeholder: "Enter Folder Prefix",
+					tags: true,
+					multiple: true,
+					minimumInputLength: 1,
+					tokenSeparators: [","],
+					createTag: function (params) {
+						var term = $.trim(params.term).replace(/\s/g, "");
+						if (term === "") {
+							return null;
+						}
+						var selectedTags = $("#folder_prefix").val() || [];
+						if (selectedTags.indexOf(term) > -1) {
+							return null;
+						}
+						return {
+							id: term,
+							text: term,
+							newTag: true,
+						};
+					},
+					templateResult: function (params) {
+						return params.name || params.text;
+					},
+					templateSelection: function (params) {
+						return params.name || params.text;
+					},
+					escapeMarkup: function (markup) {
+						return markup;
+					},
+				});
+				$("#user_permissions").select2({ placeholder: "Select Reference" });
+				$(".select2-search__field").css("width", "100%");
+				$(".action-dropdown").click(function (event) {
+					event.stopPropagation();
+				});
+				$(".parent-row").click(function () {
+					var parentId = $(this).data("parent");
+					var $childRows = $('.child-row[data-parent="' + parentId + '"]');
+					var $otherParentRows = $(".parent-row").not('[data-parent="' + parentId + '"]');
+					var $otherChildRows = $(".child-row").not('[data-parent="' + parentId + '"]');
+					$otherChildRows.addClass("d-none").removeClass("slide-in");
+					$childRows.toggleClass("d-none");
+					if (!$childRows.hasClass("d-none")) {
+						$childRows.removeClass("slide-out").addClass("slide-in");
+						$(this)
+							.find(".more-dropdown-" + parentId)
+							.hide();
+						$(this)
+							.find(".down-arrow-" + parentId)
+							.show();
+						$otherParentRows.each(function () {
+							var otherParentId = $(this).data("parent");
+							$(this)
+								.find(".more-dropdown-" + otherParentId)
+								.show();
+							$(this)
+								.find(".down-arrow-" + otherParentId)
+								.hide();
+						});
+					} else {
+						$childRows.removeClass("slide-in").addClass("slide-out");
+						$(this)
+							.find(".more-dropdown-" + parentId)
+							.show();
+						$(this)
+							.find(".down-arrow-" + parentId)
+							.hide();
+					}
+				});
+			});
+
+			let sites = $("#hidden_input_user").val();
+			if (sites) sites = JSON.parse(sites);
+
+			//handling parent modal
+			function handleEditClicked(siteId) {
+				let site = sites.find((u) => u.site_id === siteId);
+				if (site) {
+					$("#site_code").val(site.site_code).prop("disabled", true);
+					$("#site_name").val(site.site_name);
+					$("#modalForm").modal("show");
+					$(".modal_title").text("Edit");
+				}
+			}
+
+			$("#modalForm").on("hidden.bs.modal", function (e) {
+				$("#site_code").val("").prop("disabled", false);
+				$("#site_name").val("");
+				$(".modal_title").text("Add");
+			});
+
+			function handleChildEditClicked(data, users, permissions) {
+				if (data) {
+					if (permissions) permissions = JSON.parse(permissions);
+					if (users) users = JSON.parse(users);
+					let parse_data = JSON.parse(data);
+					if (parse_data) {
+						let site = sites.find((u) => u.site_id === parse_data.site_parent_id);
+						if (site) {
+							$("#folder_parent").text(" (" + site.site_name + ")");
+						}
+						$("#user_permissions").empty();
+						for (let i = 0; i < users.length; i++) {
+							let isUserSelected = false;
+							for (let j = 0; j < permissions.length; j++) {
+								if (permissions[j].usj_user_id === users[i].user_id && permissions[j].usj_site_id === parse_data.site_id) {
+									isUserSelected = true;
+									break;
+								}
+							}
+							$("#user_permissions").append(`<option value="${users[i].user_id}" ${isUserSelected ? "selected" : ""}>${users[i].user_name}</option>`);
+						}
+						$("#user_permissions").trigger("change");
+						$("#folder_prefix").empty();
+						for (let prefix of parse_data.site_prefix.split(",")) {
+							let option = new Option(prefix, prefix, true, true);
+							$("#folder_prefix").append(option);
+						}
+						$("#folder_prefix").trigger("change");
+						$("#folder_name").val(parse_data.site_name.substring(parse_data.site_name.lastIndexOf("-") + 2));
+						$("#folder_record_value").val(parse_data.site_record_value);
+						$("#folder_code").val(parse_data.site_code).prop("disabled", true);
+						$("#folder_site").val(parse_data.site_parent_id).prop("disabled", true).trigger("change");
+						$(".modal_title").text("Edit");
+						$("#modalForm2").modal("show");
+					}
+				}
+			}
+
+			$("#modalForm2").on("hidden.bs.modal", function (e) {
+				$("#folder_site").val("").trigger("change").prop("disabled", false);
+				$("#folder_name").val("");
+				$("#folder_prefix").val("").trigger("change");
+				$("#folder_record_value").val("");
+				$("#folder_code").val("").prop("disabled", false);
+				$("#user_permissions").val("").trigger("change");
+				$(".modal_title").text("Add");
+			});
+
+			$("#siteForm").submit(function (event) {
+				event.preventDefault();
+				if (!this.checkValidity()) {
+					return false;
+				}
+				NioApp.handleButtonState("saveSiteButton", "Save Site", true);
+
+				let formData = {
+					site_code: $("#site_code").val(),
+					site_name: $("#site_name").val(),
+				};
+
+				$.ajax({
+					type: "POST",
+					url: "/sites/save-site",
+					data: JSON.stringify(formData),
+					contentType: "application/json",
+					success: function (response) {
+						if (response.status == 1) {
+							NioApp.handleButtonState("saveSiteButton", "Save Site", false);
+							NioApp.Toast("<h5>Site Saved</h5><p>User Saved Successfully.</p>", "success");
+							window.location.reload();
+						} else {
+							NioApp.handleButtonState("saveSiteButton", "Save Site", false);
+							NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving site.</p>", "error");
+						}
+					},
+					error: function (xhr, status, error) {
+						NioApp.handleButtonState("saveSiteButton", "Save Site", false);
+						NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving site.</p>", "error");
+						console.error("Error saving draft:", error);
+					},
+				});
+			});
+
+			$("#folderForm").submit(function (event) {
+				event.preventDefault();
+
+				if (!this.checkValidity()) {
+					return false;
+				}
+
+				let formData = {
+					folder_site: $("#folder_site option:selected").val(),
+					folder_site_name: $("#folder_site option:selected").text(),
+					folder_name: $("#folder_name").val(),
+					folder_prefix: $("#folder_prefix").val(),
+					folder_record_value: $("#folder_record_value").val(),
+					folder_code: $("#folder_code").val(),
+					user_permissions: $("#user_permissions").val(),
+				};
+
+				NioApp.handleButtonState("saveFolderButton", "Save Folder", true);
+
+				$.ajax({
+					type: "POST",
+					url: "/sites/save-folder",
+					data: JSON.stringify(formData),
+					contentType: "application/json",
+					success: function (response) {
+						if (response.status == 1) {
+							NioApp.handleButtonState("saveFolderButton", "Save Folder", true);
+							NioApp.Toast("<h5>Folder Saved</h5><p>Folder Folder Successfully.</p>", "success");
+							window.location.reload();
+						} else {
+							NioApp.handleButtonState("saveFolderButton", "Save Folder", false);
+							NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving folder.</p>", "error");
+						}
+					},
+					error: function (xhr, status, error) {
+						NioApp.handleButtonState("saveFolderButton", "Save Folder", false);
+						NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving folder.</p>", "error");
+						console.error("Error saving draft:", error);
+					},
+				});
+			});
+		</script>
+	</body>
+</html>

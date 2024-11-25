@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description"  />
+    <!-- Fav Icon  -->
+    <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+    <!-- Page Title  -->
+    <title>Documents | Document Controller</title>
+    <!-- StyleSheets  -->
+    <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+    <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+  </head>
+
+  <body class="nk-body bg-lighter npc-general has-sidebar">
+    <div class="nk-app-root">
+      <div class="nk-main">
+        <%- include('./common/sidebar' , {active : "Documents"}); -%>
+        <div class="nk-wrap">
+          <%- include('./common/navbar'); -%>
+          <div class="nk-content">
+            <div class="container-fluid">
+              <div class="nk-content-inner">
+                <div class="nk-content-body">
+                  <div class="nk-block nk-block-lg">
+                    <div class="nk-block-head nk-block-head-sm">
+                      <div class="nk-block-between g-3">
+                        <div class="nk-block-head-content d-flex">
+                          <h3 class="nk-block-title page-title">Add Document</h3>
+                          <button id="saveDraftButton" style="margin: -5px 20px 5px 20px; min-width: 88px" class="btn btn-sm btn-dim btn-outline-primary d-none text-center">Save Draft</button>
+                        </div>
+
+                        <div class="nk-block-head-content">
+                          <a href="/documents" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card card-bordered">
+                      <div class="card-inner">
+                        <form id="documentForm" class="form-validate is-alter">
+                          <div class="row g-gs">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_site">Site</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-search="on" data-placeholder="Select Site" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>>
+                                    <option label="empty" value=""></option>
+                                    <% sites.forEach(function(site) { %>
+                                      <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>" <%= documentData && documentData.doc_site == site.site_name ? 'selected' : '' %>><%= site.site_name %></option>
+                                    <% }); %>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_folder">Folder</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required <% if(documentData.doc_status == "DRAFTED" ) { %> disabled <% } %> >
+                                    <option label="empty" value=""></option>
+                                    <% folders.forEach(function(folder) { %>
+                                        <% if (documentData && documentData.doc_site && folder.site_parent_name == documentData.doc_site) { %>
+                                            <option value="<%= folder.site_name %>" data-site-id="<%= folder.site_id %>" <%= documentData.doc_folder == folder.site_name ? 'selected' : '' %>><%= folder.site_name %></option>
+                                        <% } %>
+                                    <% }); %>
+                                </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_type">Type</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type" required <% if(documentData.doc_status == "DRAFTED" ) { %> disabled <% } %>>
+                                    <option label="empty" value=""></option>
+                                    <option value="INCOMING" <%= documentData && documentData.doc_type === 'INCOMING' ? 'selected' : '' %>>INCOMING</option>
+                                    <option value="OUTGOING" <%= documentData && documentData.doc_type === 'OUTGOING' ? 'selected' : '' %>>OUTGOING</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_number">Number</label>
+                                <div class="form-control-wrap">
+                                  <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>/>
+                                    <div class="input-group-append">
+                                      <button disabled id="choosePrefixButton" class="btn btn-outline-primary btn-dim">Choose Prefix</button>
+                                  </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                              <div class="col-md-8">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_reference">Reference</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2" id="doc_reference" name="doc_reference" data-placeholder="Select Reference" multiple>
+                                    <option label="empty" value=""></option>
+                                    <% var references = documentData && documentData.doc_reference ? documentData.doc_reference.split(',') : []; %>
+                                    <% references.forEach(function(reference) { %>
+                                      <option value="<%= reference.trim() %>" selected><%= reference.trim() %></option>
+                                    <% }); %>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_subject">Subject</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Document Subject" id="doc_subject" name="doc_subject" value="<%= documentData ? documentData.doc_subject : '' %>" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_storage_location">Storage Location</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Storage Location" id="doc_storage_location" name="doc_storage_location" value="<%= documentData ? documentData.doc_storage_location : '' %>"  required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_purpose">Purpose</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2" id="doc_purpose" name="doc_purpose" data-placeholder="Select Purpose" required>
+                                    <option label="empty" value=""></option>
+                                    <option value="DESIGN & DRAWINGS" <%= documentData && documentData.doc_purpose === 'DESIGN & DRAWINGS' ? 'selected' : '' %>>DESIGN & DRAWINGS</option>
+                                    <option value="EOT" <%= documentData && documentData.doc_purpose === 'EOT' ? 'selected' : '' %>>EOT</option>
+                                    <option value="OTHERS" <%= documentData && documentData.doc_purpose === 'OTHERS' ? 'selected' : '' %>>OTHERS</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-sm-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_created_at">Document Date</label>
+                                <div class="form-control-wrap focused">
+                                  <div class="form-icon form-icon-right"><em class="icon ni ni-calendar-alt"></em></div>
+                                  <input type="text" required id="doc_created_at" autocomplete="off" name="doc_created_at" placeholder="Document Date" class="form-control date-picker" value="<%= documentData ? documentData.doc_created_at : '' %>" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_from"> From</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="From" id="doc_from" name="doc_from" value="<%= documentData ? documentData.doc_from : '' %>" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_to"> To</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="To" id="doc_to" name="doc_to" value="<%= documentData ? documentData.doc_to : '' %>"  required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_confidential">Confidential</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2 form-control" id="doc_confidential" name="doc_confidential" data-placeholder="Select Option.." required>
+                                    <option label="empty" value=""></option>
+                                    <option value="true" <%= documentData && documentData.doc_confidential ? 'selected' : '' %>>Yes</option>
+                                    <option value="false" <%= documentData && !documentData.doc_confidential ? 'selected' : '' %>>No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_reply_required">Reply Required</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select form-control js-select2 form-control" id="doc_reply_required" name="doc_reply_required" data-placeholder="Select Option.." required>
+                                    <option label="empty" value=""></option>
+                                    <option value="true" <%= documentData && documentData.doc_reply_required ? 'selected' : '' %>>Yes</option>
+                                    <option value="false" <%= documentData && !documentData.doc_reply_required ? 'selected' : '' %>>No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4" id="pdfUploadContainer">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_file">Upload PDF</label>
+                                <div class="form-control-wrap">
+                                  <input type="file" accept=".pdf" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-12">
+                              <div class="form-group">
+                                <button id="uploadDocumentBtn" type="submit" class="btn btn-lg btn-primary">Upload</button>
+                              </div>
+                            </div>
+                            <div class="col-md-12 d-none" id="updateDocumentBtnContainer">
+                              <div class="form-group">
+                                <button disabled id="updateDocumentBtn" type="submit" class="btn btn-lg btn-primary">Update</button>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <%- include('./common/footer'); -%>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" tabindex="-1" id="selectPrefixModal">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <em class="icon ni ni-cross"></em>
+              </a>
+              <div class="modal-body">
+                <form id="documentForm" class="form-validate is-alter">
+                  <div class="row g-gs">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="form-label" for="doc_number">Select Prefix</label>
+                        <div class="form-control-wrap">
+                          <div class="input-group">
+                            <select class="form-control" data-placeholder="Select Prefix" name="folder_prefix" id="folder_prefix">
+                              
+                            </select>
+                            <div class="input-group-append">
+                              <button id="savePrefixButton" class="btn btn-outline-primary btn-dim">Choose Prefix</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+          </div>
+      </div>
+    </div>
+    <input type="hidden" id="doc_status" value="<%=documentData.doc_status%>">
+    <script src="/app/assets/js/bundle.js"></script>
+    <script src="/app/assets/js/scripts.js"></script>
+    <script>
+      let documentStatus = $("#doc_status").val();
+      let folders = `<%- JSON.stringify(folders) %>`;
+      let selectedPrefix = "";
+      folders = folders ? JSON.parse(folders) : [];
+      $(document).ready(function () {
+        $("#doc_site").on("change", function () {
+          $("#doc_folder").val("");
+          $("#doc_number").val("");
+          generateDocumentNumber();
+          toggleSaveDraftButton();
+          var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
+          var folderSelect = $("#doc_folder");
+          folderSelect.val("");
+          folderSelect.empty().append('<option label="empty" value=""></option>');
+          folders.forEach(function (folder) {
+            if (folder.site_parent_id == selectedSiteParentId) {
+              folderSelect.append('<option data-site-id="' + folder.site_id + '" value="' + folder.site_name + '">' + folder.site_name + "</option>");
+            }
+          });
+        });
+
+        $(".form-control").on("change", function () {
+          toggleSaveDraftButton();
+        });
+
+        $("#doc_folder").on("change", function () {
+          $("#doc_number").val("");
+          $("#choosePrefixButton").prop("disabled" , true);
+          selectedPrefix = "";
+          generateDocumentNumber();
+          toggleSaveDraftButton();
+        });
+
+        $("#doc_type").on("change", function () {
+          selectedPrefix = "";
+          $("#doc_number").val("");
+          $("#choosePrefixButton").prop("disabled" , true);
+          generateDocumentNumber();
+          toggleSaveDraftButton();
+        });
+
+        function toggleSaveDraftButton() {
+          let docSiteValue = $("#doc_site").val();
+          let docFolderValue = $("#doc_folder").val();
+          let docTypeValue = $("#doc_type").val();
+          let docNumberValue = $("#doc_number").val();
+          if(docTypeValue == "INCOMING"){
+            $("#choosePrefixButton").prop("disabled" , true);
+          }
+          if (docFolderValue && docFolderValue && docTypeValue && docNumberValue) {
+            $("#saveDraftButton").removeClass("d-none");
+          } else {
+            $("#saveDraftButton").addClass("d-none");
+          }
+        }
+
+        // Generating Document Number
+        function generateDocumentNumber() {
+          let docStatus = $("#doc_status").val()
+          if(docStatus == "DRAFTED") return
+          let docSiteValue = $("#doc_site").val();
+          let docFolderValue = $("#doc_folder").val();
+          let docTypeValue = $("#doc_type").val();
+          let docNumberInput = $("#doc_number");
+          let docNumberValue = "";
+          let dataSiteId = $("#doc_site").find("option:selected").data("parent-id");
+          let dataFolderId = $("#doc_folder").find("option:selected").data("site-id");
+
+          if (docSiteValue && docFolderValue && docTypeValue == "OUTGOING") {
+            selectPrefixOptions = "";
+            docNumberInput.prop("disabled", true).val();
+            $.ajax({
+              type: "GET",
+              url: "/docs/generate-document-number",
+              data: { site_id: dataSiteId, folder_id : dataFolderId},
+              success: function (response) {
+                if (response.status == 1) {
+                  let selectPrefixOptions = response.payload.site_prefix.split(",");
+                  $("#choosePrefixButton").prop("disabled" , false);
+                  let sitePrefix = selectPrefixOptions[0];
+                  if(selectedPrefix != ""){
+                    sitePrefix = selectedPrefix;
+                  }
+                  $("#folder_prefix").empty();
+                  for (let i = 0; i < selectPrefixOptions.length; i++) {
+                    let value = selectPrefixOptions[i];
+                    let option = $('<option>').val(value).text(value);
+                    if (value === sitePrefix) {
+                      option.prop("selected", true);
+                    }
+                    $('#folder_prefix').append(option);
+                  }
+                  if (!sitePrefix.endsWith('/')) {
+                      sitePrefix += '/';
+                  }
+                  const docNumberValue = sitePrefix + (parseInt(response.payload.site_record_value, 10) + 1);
+                  docNumberInput.val(docNumberValue);
+                  toggleSaveDraftButton();
+                } else {
+                  docNumberInput.prop("disabled", false).val("");
+                }
+              },
+              error: function (xhr, status, error) {
+                docNumberInput.prop("disabled", false).val("");
+              },
+            });
+          } else {
+            docNumberInput.prop("disabled", false);
+          }
+        }
+        $("#choosePrefixButton").click(function(e){
+          e.preventDefault();
+          $("#selectPrefixModal").modal("show")
+        });
+        $("#savePrefixButton").click(function(e){
+          e.preventDefault();
+          selectedPrefix = $("#folder_prefix").val();
+          generateDocumentNumber();
+          $("#selectPrefixModal").modal("hide")
+        })
+        
+        $("#doc_reference").select2({
+          ajax: {
+            url: function (params) {
+              return "/docs/get-document-reference?query=" + params.term;
+            },
+            dataType: "json",
+            delay: 250,
+            processResults: function (data) {
+              return {
+                results: data.payload.map(function (option) {
+                  return {
+                    text: option,
+                    id: option,
+                  };
+                }),
+              };
+            },
+            cache: true,
+          },
+          minimumInputLength: 1,
+          placeholder: "Select Reference",
+          tags: true
+        });
+      });
+
+      // Saving Draft
+      $("#saveDraftButton").click(function () {
+        event.preventDefault();
+        toastr.clear();
+        NioApp.handleButtonState("saveDraftButton", "Save Draft", true);
+        let formData = {};
+        $(".form-control").each(function () {
+          let fieldName = $(this).attr('id');
+          let fieldValue = $(this).val();
+          if(fieldName == "folder_prefix") return;
+          if(fieldValue == "" || fieldValue.length == 0 || fieldValue.length == []){
+            fieldValue = null;
+          }
+          formData[fieldName] = fieldValue;
+        });
+        $.ajax({
+          type: "POST",
+          url: "/docs/save-draft",
+          data: formData,
+          success: function (response) {
+            if (response.status == 1) {
+              $("#doc_site,#doc_folder,#doc_number,#choosePrefixButton,#doc_type").prop("disabled", true);
+              NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+              NioApp.Toast("<h5>Update Successfully</h5><p>Draft Saved Successfully</p>", "success");
+            } else {
+              NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            }
+          },
+          error: function (xhr, status, error) {
+            NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            console.error("Error saving draft:", error);
+          },
+        });
+      });
+
+      $("#documentForm").submit(function (event) {
+        event.preventDefault();
+        if (!this.checkValidity()) {
+          return false;
+        }
+
+        NioApp.handleButtonState("uploadDocumentBtn", "Upload", true);
+
+        let formData = new FormData(this);
+        let isDocNumber = false;
+        for (let pair of formData.entries()) {
+          if (pair[0] == "doc_number") {
+            isDocNumber = true;
+          }
+        }
+        if (!isDocNumber) {
+          formData.append("doc_number", document.getElementById("doc_number").value);
+        }
+      });
+
+      $("#documentForm").submit(function (event) {
+        event.preventDefault();
+        if (!this.checkValidity()) {
+          return false;
+        }
+
+        NioApp.handleButtonState("uploadDocumentBtn", "Upload", true);
+
+        let formData = new FormData(this);
+        let isDocNumber = false;
+        for (let pair of formData.entries()) {
+          if (pair[0] == "doc_number") {
+            isDocNumber = true;
+          }
+        }
+        if (!isDocNumber) {
+          formData.append("doc_number", document.getElementById("doc_number").value);
+        }
+        if(documentStatus == "INSERTED"){
+          formData.append("insertedFlag", true);
+        }
+        // Your AJAX request
+        $.ajax({
+          type: "POST",
+          url: "/docs/create-document",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (response.status == 1) {
+              NioApp.handleButtonState("uploadDocumentBtn", "Upload", false);
+              NioApp.Toast("<h5>Document Uploaded</h5><p>Document Uploaded Successfully</p>", "success");
+              window.location.href = `/documents/${btoa(response.payload)}`;
+            } else {
+              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
+            }
+          },
+          error: function (xhr, status, error) {
+            NioApp.handleButtonState("uploadDocumentBtn", "Upload", false);
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
+            console.error("Error saving draft:", error);
+          },
+        });
+      });
+
+    </script>
+  </body>
+</html>
