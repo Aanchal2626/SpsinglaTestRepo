@@ -379,24 +379,25 @@ documentController.getFilteredDocuments = async (req, res) => {
         for (const [field, filter] of Object.entries(inputs.activeFilter)) {
             if (filter.type === "multiple") {
                 const values = filter.value.map((val) => `'${val.replace(/'/g, "''")}'`).join(", ");
-                conditions.push(`d.${field} IN (${values})`);
+				values &&  conditions.push(`d.${field} IN (${values})`);
             } else if (filter.type === "text") {
-                conditions.push(`LOWER(d.${field}) LIKE LOWER('%${filter.value.replace(/'/g, "''")}%')`);
+				filter?.value &&  conditions.push(`LOWER(d.${field}) LIKE LOWER('%${filter.value.replace(/'/g, "''")}%')`);
             } else if (filter.type === "keyword") {
 				baseQuery += `
 				JOIN doc_metadata dm 
 				ON d.doc_number = dm.dm_id 
 				AND (
-				  dm.dm_id = '${filter.value.replace(/'/g, "''")}' 
-				  OR LOWER(dm.dm_ocr_content) LIKE LOWER('%${filter.value.replace(/'/g, "''")}%')
-				  OR d.doc_from = '${filter.value.replace(/'/g, "''")}'
-				  OR d.doc_to = '${filter.value.replace(/'/g, "''")}'
-				)
+				 LOWER(dm.dm_id) LIKE LOWER('%${filter.value}%')
+				  OR d.doc_storage_location = '${filter.value}'
+				  OR d.doc_from = '${filter.value}'
+				  OR d.doc_to = '${filter.value}'
+				  OR LOWER(dm.dm_ocr_content) LIKE LOWER('%${filter.value}%')
+				  )
 			  `;
 			  
             }
         }
-
+		
 		
         // Handle sorting
         let orderByClause = "";
@@ -410,7 +411,6 @@ documentController.getFilteredDocuments = async (req, res) => {
             orderByClause = `ORDER BY d.doc_number DESC`;
         }
         // Build the WHERE clause
-        let whereClause = "";
         if (conditions.length > 0) {
             baseQuery += " WHERE " + conditions.join(" AND ");
         }
@@ -419,12 +419,12 @@ documentController.getFilteredDocuments = async (req, res) => {
         SELECT COUNT(DISTINCT d.doc_number) as total
         FROM documents d
         LEFT JOIN doc_reference_junction j ON j.doc_junc_replied = d.doc_number
-        ${joins}
-        ${whereClause}
+		${conditions.length ?" WHERE " + conditions.join(" AND "):"" }
       `;
+	  
         let { rows: countResult } = await pool.query(countQuery);
-        const totalDocuments = countResult[0].total;
-        const totalPages = Math.ceil(totalDocuments / pageSize);
+        const totalDocuments = countResult[0].total; 
+        const totalPages = Math.ceil(totalDocuments / pageSize);		
         // Main query with pagination
         let query = `
         ${baseQuery}
@@ -446,6 +446,7 @@ documentController.getFilteredDocuments = async (req, res) => {
         LIMIT ${pageSize}
         OFFSET ${offset}
       `;
+	  
         // Execute the main query
         let { rows: documents } = await pool.query(query);
         res.json({
