@@ -246,7 +246,7 @@
                                     <span data-field="doc_to">TO</span><span class="sort-indicator"></span>
                                 </div>
                                 <div class="nk-tb-col">
-                                    <span data-field="doc_storage">STORAGE</span><span class="sort-indicator"></span>
+                                    <span data-field="doc_storage_location">STORAGE</span><span class="sort-indicator"></span>
                                 </div>
                                 <div class="nk-tb-col">
                                     <span data-field="doc_reference">REFERENCE</span><span class="sort-indicator"></span>
@@ -346,7 +346,7 @@
                                 </div>
                                 <div class="nk-tb-col">
                                   <span>
-                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_storage" placeholder="Storage">
+                                    <input type="text" class="form-control filter-input" data-filter="text" id="doc_storage_location" placeholder="Storage">
                                   </span>
                                 </div>
                                 <div class="nk-tb-col">
@@ -409,6 +409,8 @@
           sort: {},
           activeFilter: {},
       };
+      
+      let isFetching = false;
 
       $('.filter-limit a').click(function(event) {
         event.preventDefault();
@@ -422,7 +424,7 @@
           let value = e.target.value.trim();
           let id = e.target.id;
           let dataFilter = e.target.dataset.filter;
-
+         
           if (e.target.multiple) {
               value = Array.from(e.target.selectedOptions).map(option => option.value);
           }
@@ -449,7 +451,9 @@
         width: 'resolve'
     });
     
-    function fetchDocuments() {
+    function fetchDocuments() { 
+      if (isFetching) return; // Exit if already fetching
+      isFetching = true;
       $(".table-content").remove();
       $("#table-status").html(`<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`);
 
@@ -459,6 +463,7 @@
         data: JSON.stringify(filters),
         contentType: "application/json",
         success: function (response) {
+          isFetching = false; // Reset flag
           if (response.status == 1) {
             if (response.payload.documents && response.payload.documents.length > 0) {
               $("#table-status").empty();
@@ -520,6 +525,8 @@
                 $(rowHtml).insertAfter("#table-filters");
               });
               totalPages = response.payload.totalPages || 1;
+              console.log(response.payload);
+              
               updatePagination(totalPages, filters.page);
             } else {
               $("#table-status").html(`<div class="text-center"><p>No Records Found</p></div>`);
@@ -617,6 +624,68 @@
       $('#scroll-right').on('click', function () {
         $('.scrollable-datatable').animate({ scrollLeft: '+=300' }, 200);
       });
+      
+      function resetSortFilter() {
+        $("#table-head .nk-tb-col").removeClass("sort-asc sort-dsc active");
+      }
+
+        $('#resetFilters').on('click', function () {
+          if (Object.keys(filters.activeFilter).length) {
+            filters = {
+            limit: 10,
+            page: 1,
+            sort: {},
+            activeFilter: {},
+          };
+          resetSortFilter()
+          // all filters to val "empty"
+          const resetFields = [
+            '#doc_folder',
+            '#doc_site',
+            '#doc_type',
+            '#doc_status',
+            '#doc_created_at',
+            '#doc_purpose',
+          ];
+          resetFields.forEach((selector) => {
+            const $field = $(selector);
+            if ($field.val() !== "empty") {
+              $field.val("empty").trigger('change');
+            }
+          });
+          // all filters with input reset val ""
+          const resetFieldsEmpty = [
+            '#doc_subject',
+            '#doc_from',
+            '#doc_to',
+            '#doc_storage_location',
+            '#doc_date',
+            '#doc_number',
+          ];
+
+          resetFieldsEmpty.forEach((selector) => {
+            const $field = $(selector);
+            if ($field.val() !== "") {
+              $field.val("").trigger('change');
+            }
+          });
+
+          return
+        }
+
+          if (Object.keys(filters.sort).length) {
+            resetSortFilter()
+            filters = {
+              limit: 10,
+              page: 1,
+              sort: {},
+              activeFilter: {},
+            };
+            fetchDocuments()
+          }
+
+       
+        });
 
 
 
