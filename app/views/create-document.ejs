@@ -347,7 +347,7 @@
                   if (!sitePrefix.endsWith('/')) {
                       sitePrefix += '/';
                   }
-                  const docNumberValue = sitePrefix + (parseInt(response.payload.site_record_value, 10) + 1);
+                  const docNumberValue = sitePrefix + (parseInt(response.payload.site_record_value , 10)  + 1 ||  Math.floor(Math.random() * (999 - 10 + 1)) + 10);
                   docNumberInput.val(docNumberValue);
                   toggleSaveDraftButton();
                 } else {
